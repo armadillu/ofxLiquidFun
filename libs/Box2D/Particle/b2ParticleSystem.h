@@ -23,6 +23,9 @@
 #include <Box2D/Particle/b2Particle.h>
 #include <Box2D/Dynamics/b2TimeStep.h>
 
+//comment this out to avoid the ofxRemoteUIServer madness
+#define EXPOSE_INTERNAL_PHYSICS_PARAMS_WITH_REMOTE_UI
+
 #if LIQUIDFUN_UNIT_TESTS
 #include <gtest/gtest.h>
 #endif // LIQUIDFUN_UNIT_TESTS

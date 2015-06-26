@@ -29,6 +29,8 @@
 #include <Box2D/Collision/Shapes/b2ChainShape.h>
 #include <algorithm>
 
+#include "ofxRemoteUIServer.h"
+
 // Define LIQUIDFUN_SIMD_TEST_VS_REFERENCE to run both SIMD and reference
 // versions, and assert that the results are identical. This is useful when
 // modifying one of the functions, to help verify correctness.
@@ -424,6 +426,41 @@ b2ParticleSystem::b2ParticleSystem(const b2ParticleSystemDef* def,
 
 	b2Assert(def->lifetimeGranularity > 0.0f);
 	m_def = *def;
+
+	#ifdef EXPOSE_INTERNAL_PHYSICS_PARAMS_WITH_REMOTE_UI
+
+	RUI_NEW_GROUP("COLOR MIXING");
+	RUI_SHARE_PARAM(m_def.colorMixingStrength, 0.00, 2);
+
+
+	RUI_NEW_GROUP("DENSITY");
+	RUI_SHARE_PARAM(m_def.density, 0.01, 2);
+
+	RUI_NEW_GROUP("DAMP");
+	RUI_SHARE_PARAM(m_def.dampingStrength, 0.01, 2.0);
+
+	RUI_NEW_GROUP("COMPRESSION");
+	RUI_SHARE_PARAM(m_def.pressureStrength, 0.00, 2.0);
+	RUI_SHARE_PARAM(m_def.staticPressureStrength, 0.00, 2.0);
+
+	RUI_NEW_GROUP("VISCOUS");
+	RUI_SHARE_PARAM(m_def.viscousStrength, 0, 2);
+
+	RUI_NEW_GROUP("ELASTIC");
+	RUI_SHARE_PARAM(m_def.elasticStrength, 0, 0.4);
+
+	RUI_NEW_GROUP("SPRING");
+	RUI_SHARE_PARAM(m_def.springStrength, 0, 0.4);
+
+	RUI_NEW_GROUP("TENSION");
+	RUI_SHARE_PARAM(m_def.surfaceTensionPressureStrength, 0.001, 2);
+	RUI_SHARE_PARAM(m_def.surfaceTensionNormalStrength, 0.001, 2);
+
+	RUI_NEW_GROUP("REPULSION");
+	RUI_SHARE_PARAM(m_def.repulsiveStrength, 0, 2);
+
+	RUI_LOAD_FROM_XML();
+	#endif
 
 	m_world = world;
 

@@ -153,7 +153,7 @@ void ofxBox2dParticleSystem::setColor(ofColor _color){
     color = _color;
 }
 
-void ofxBox2dParticleSystem::setParticleFlag(b2ParticleFlag _flag){
+void ofxBox2dParticleSystem::setParticleFlag(uint32 _flag){
     flag = _flag;
 }
 

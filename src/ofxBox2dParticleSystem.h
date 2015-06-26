@@ -21,7 +21,7 @@ public:
     float particleSize;
     float lifetime;
     ofColor color;
-    b2ParticleFlag flag;
+    uint32 flag;
     ofImage textureImage;
     bool useTexture;
     
@@ -46,7 +46,7 @@ public:
     void setRadius(float radius);
     void setParticleLifetime(float lifetime);
     void setColor(ofColor color);
-    void setParticleFlag(b2ParticleFlag flag);
+    void setParticleFlag(uint32 flag);
     
     int getParticleCount();
 	b2Vec2* getPositionBuffer();
