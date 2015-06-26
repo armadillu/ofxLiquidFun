@@ -3108,6 +3108,7 @@ void b2ParticleSystem::Solve(const b2TimeStep& step)
 		for (int32 i = 0; i < m_count; i++)
 		{
 			m_positionBuffer.data[i] += subStep.dt * m_velocityBuffer.data[i];
+			//m_velocityBuffer.data[i] *= 0.98; //oriol testing friction
 		}
 	}
 }
@@ -3596,6 +3597,10 @@ void b2ParticleSystem::SolveElastic(const b2TimeStep& step)
 			va += strength * (b2Mul(r, oa) - pa);
 			vb += strength * (b2Mul(r, ob) - pb);
 			vc += strength * (b2Mul(r, oc) - pc);
+			//testing here
+//			va *= 0.99;
+//			vb *= 0.99;
+//			vc *= 0.99;
 		}
 	}
 }
