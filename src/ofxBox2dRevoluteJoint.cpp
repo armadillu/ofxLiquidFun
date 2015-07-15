@@ -55,14 +55,14 @@ void ofxBox2dRevoluteJoint::setup(b2World* b2world, b2Body* body1, b2Body* body2
 
 
 	b2RevoluteJointDef jointDef;
-	jointDef.bodyA = body1;
-	jointDef.bodyB = body2;
-	jointDef.localAnchorA = screenPtToWorldPt(anchor1);
-	jointDef.localAnchorB = screenPtToWorldPt(anchor2);
-	jointDef.referenceAngle = body2->GetAngle() - body1->GetAngle();
-	jointDef.collideConnected = false;
-	jointDef.enableLimit = false;
-	jointDef.enableMotor = true;
+	jointDef.Initialize(body1, body2, b2Vec2(body1->GetPosition() + body2->GetPosition()) * 0.5);
+//	jointDef.localAnchorA = screenPtToWorldPt(anchor1);
+//	jointDef.localAnchorB = screenPtToWorldPt(anchor2);
+
+//	jointDef.referenceAngle = body2->GetAngle() - body1->GetAngle();
+//	jointDef.collideConnected = bCollideConnected;
+//	jointDef.enableLimit = false;
+//	jointDef.enableMotor = false;
 	joint = (b2RevoluteJoint*)world->CreateJoint(&jointDef);
 
 //

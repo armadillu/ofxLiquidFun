@@ -137,12 +137,18 @@ void ofxBox2dCircle::setRadius(float r) {
 void ofxBox2dCircle::draw() {
 	
 	if(!isBody()) return;
-	
+
+	ofVec2f p = getPosition();
 	ofPushMatrix();
-	ofTranslate(getPosition().x, getPosition().y, 0);
+	ofTranslate(p);
+
+	//ofPushMatrix();
 	ofRotate(getRotation(), 0, 0, 1);
 	ofCircle(0, 0, radius);
-	
+	//ofPopMatrix();
+
+	//ofDrawBitmapStringHighlight("m:" + ofToString(1000 * body->GetMass() / (M_PI * radius * radius)), 0, 12);
+
     ofPushStyle();
     ofEnableAlphaBlending();
     ofSetColor(0);
