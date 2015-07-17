@@ -25,7 +25,7 @@ ofxBox2dPolygon::~ofxBox2dPolygon() {
 //----------------------------------------
 void ofxBox2dPolygon::clear() {
 	ofxBox2dBaseShape::destroy();
-    ofxBox2dPolygon::clear();
+   // ofxBox2dPolygon::clear();
     mesh.clear();
 }
 

@@ -134,11 +134,12 @@ bool ofxBox2dRevoluteJoint::isSetup() {
 void ofxBox2dRevoluteJoint::draw() {
 	if(!alive) return;
 
-	b2Vec2 p1 = joint->GetAnchorA();
-	b2Vec2 p2 = joint->GetAnchorB();
+	b2Vec2 p1 = joint->GetBodyA()->GetPosition();
+	b2Vec2 p2 = joint->GetBodyB()->GetPosition();
 
 	p1 *= OFX_BOX2D_SCALE;
 	p2 *= OFX_BOX2D_SCALE;
+
 	ofDrawLine(p1.x, p1.y, p2.x, p2.y);
 }
 

@@ -31,6 +31,8 @@ public:
 	void setup(b2World * b2dworld, int maxCount, float lifetime, float radius);
     void setup(b2World * b2world, int maxCount, float lifetime, float radius, float particleSize, ofColor color);
     void draw();
+
+	ofVboMesh getParticleVbo();
     
     int32 createParticle(ofVec2f position, ofVec2f velocity, void* userData = NULL);
     int32 createParticle(float position_x, float position_y, float velocisty_x, float velocisty_y, void* userData = NULL);
@@ -38,8 +40,8 @@ public:
 	const b2ParticleHandle* getParticleHandleFromIndex(const int32 index);
 	
     
-    void createRectParticleGroup(ofVec2f position, ofVec2f size, ofColor color);
-    void createCircleParticleGroup(ofVec2f position, float radius, ofColor color);
+    void createRectParticleGroup(ofVec2f position, ofVec2f size, ofColor color, float strength);
+    void createCircleParticleGroup(ofVec2f position, float radius, ofColor color, float strength);
     
     void loadImage(string fileName);
     

@@ -40,33 +40,36 @@ void ofxBox2dParticleSystem::setup(b2World * _b2world, int _maxCount, float _lif
     particleSystem = b2dworld->CreateParticleSystem(&particleSystemDef);
 }
 
+
+ofVboMesh ofxBox2dParticleSystem::getParticleVbo(){
+
+	int32 particleCount = particleSystem->GetParticleCount();
+	b2Vec2 *pos = particleSystem->GetPositionBuffer();
+
+	ofVboMesh mesh;
+	b2ParticleColor *particleColor = particleSystem->GetColorBuffer();
+	mesh.setMode(OF_PRIMITIVE_POINTS);
+
+	for (int i = 0; i < particleCount; i++) {
+		mesh.addVertex(ofVec3f(pos[i].x * OFX_BOX2D_SCALE, pos[i].y * OFX_BOX2D_SCALE, 0.0f));
+		mesh.addColor(ofFloatColor(particleColor[i].r / 255.0, particleColor[i].g / 255.0, particleColor[i].b / 255.0));
+	}
+	return mesh;
+}
+
 void ofxBox2dParticleSystem::draw(){
     ofFill();
     
-    int32 particleCount = particleSystem->GetParticleCount();
-    b2Vec2 *positnon = particleSystem->GetPositionBuffer();
-    b2ParticleColor *particleColor = particleSystem->GetColorBuffer();
-    
-    ofVboMesh mesh;
-    mesh.setMode(OF_PRIMITIVE_POINTS);
-    
-    for (int i = 0; i < particleCount; i++) {
-        mesh.addVertex(ofVec2f(positnon[i].x, positnon[i].y));
-        mesh.addColor(ofFloatColor(particleColor[i].r / 255.0, particleColor[i].g / 255.0, particleColor[i].b / 255.0));
-    }
-    
+    ofVboMesh mesh = getParticleVbo();
+
     ofSetColor(255);
     ofEnablePointSprites();
     ofPushMatrix();
     ofScale(OFX_BOX2D_SCALE, OFX_BOX2D_SCALE);
     glPointSize(particleSize);
-    if (useTexture) {
         textureImage.getTextureReference().bind();
-        mesh.drawFaces();
+		mesh.drawVertices();
         textureImage.getTextureReference().unbind();
-    } else {
-        mesh.draw();
-    }
     ofPopMatrix();
     ofDisablePointSprites();
 }
@@ -104,11 +107,12 @@ void ofxBox2dParticleSystem::applyForce( int32 particle_index, float force_x, fl
   particleSystem->ParticleApplyForce( particle_index, b2Vec2( force_x, force_y ) );
 }
 
-void ofxBox2dParticleSystem::createRectParticleGroup(ofVec2f position, ofVec2f size, ofColor color){
+void ofxBox2dParticleSystem::createRectParticleGroup(ofVec2f position, ofVec2f size, ofColor color, float strength){
     b2PolygonShape rect;
     rect.SetAsBox(size.x / OFX_BOX2D_SCALE, size.y / OFX_BOX2D_SCALE);
     
     b2ParticleGroupDef pgd;
+	pgd.strength = strength;
     pgd.flags = flag;
     pgd.position = b2Vec2(position.x / OFX_BOX2D_SCALE, position.y / OFX_BOX2D_SCALE);
     pgd.shape = &rect;
@@ -119,12 +123,13 @@ void ofxBox2dParticleSystem::createRectParticleGroup(ofVec2f position, ofVec2f s
     particleSystem->CreateParticleGroup(pgd);
 }
 
-void ofxBox2dParticleSystem::createCircleParticleGroup(ofVec2f position, float radius, ofColor color){
+void ofxBox2dParticleSystem::createCircleParticleGroup(ofVec2f position, float radius, ofColor color, float strength){
     b2CircleShape circle;
     circle.m_radius = radius / OFX_BOX2D_SCALE;
     
     b2ParticleGroupDef pgd;
     pgd.flags = flag;
+	pgd.strength = strength;
     pgd.position = b2Vec2(position.x / OFX_BOX2D_SCALE, position.y / OFX_BOX2D_SCALE);
     pgd.shape = &circle;
     pgd.color = b2ParticleColor(color.r, color.g, color.b, color.a);
