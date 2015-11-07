@@ -30,6 +30,7 @@
 #include <algorithm>
 
 #include "ofxRemoteUIServer.h"
+#include "ofxTimeMeasurements.h"
 
 // Define LIQUIDFUN_SIMD_TEST_VS_REFERENCE to run both SIMD and reference
 // versions, and assert that the results are identical. This is useful when
@@ -3028,6 +3029,7 @@ void b2ParticleSystem::Solve(const b2TimeStep& step)
 	{
 		return;
 	}
+
 	for (m_iterationIndex = 0;
 		m_iterationIndex < step.particleIterations;
 		m_iterationIndex++)
@@ -3036,93 +3038,98 @@ void b2ParticleSystem::Solve(const b2TimeStep& step)
 		b2TimeStep subStep = step;
 		subStep.dt /= step.particleIterations;
 		subStep.inv_dt *= step.particleIterations;
-		UpdateContacts(false);
-		UpdateBodyContacts();
-		ComputeWeight();
+		TS_ACC(UpdateContacts(false));
+
+
+		TS_ACC(UpdateBodyContacts());
+		TS_ACC(ComputeWeight());
 		if (m_allGroupFlags & b2_particleGroupNeedsUpdateDepth)
 		{
-			ComputeDepth();
+			TS_ACC(ComputeDepth());
 		}
 		if (m_allParticleFlags & b2_reactiveParticle)
 		{
-			UpdatePairsAndTriadsWithReactiveParticles();
+			TS_ACC(UpdatePairsAndTriadsWithReactiveParticles());
 		}
 		if (m_hasForce)
 		{
-			SolveForce(subStep);
+			TS_ACC(SolveForce(subStep));
 		}
 		if (m_allParticleFlags & b2_viscousParticle)
 		{
-			SolveViscous();
+			TS_ACC(SolveViscous());
 		}
 		if (m_allParticleFlags & b2_repulsiveParticle)
 		{
-			SolveRepulsive(subStep);
+			TS_ACC(SolveRepulsive(subStep));
 		}
 		if (m_allParticleFlags & b2_powderParticle)
 		{
-			SolvePowder(subStep);
+			TS_ACC(SolvePowder(subStep));
 		}
 		if (m_allParticleFlags & b2_tensileParticle)
 		{
-			SolveTensile(subStep);
+			TS_ACC(SolveTensile(subStep));
 		}
 		if (m_allGroupFlags & b2_solidParticleGroup)
 		{
-			SolveSolid(subStep);
+			TS_ACC(SolveSolid(subStep));
 		}
 		if (m_allParticleFlags & b2_colorMixingParticle)
 		{
-			SolveColorMixing();
+			TS_ACC(SolveColorMixing());
 		}
 		SolveGravity(subStep);
 		if (m_allParticleFlags & b2_staticPressureParticle)
 		{
-			SolveStaticPressure(subStep);
+			TS_ACC(SolveStaticPressure(subStep));
 		}
-		SolvePressure(subStep);
-		SolveDamping(subStep);
+		TS_ACC(SolvePressure(subStep));
+		TS_ACC(SolveDamping(subStep));
 		if (m_allParticleFlags & k_extraDampingFlags)
 		{
-			SolveExtraDamping();
+			TS_ACC(SolveExtraDamping());
 		}
 		// SolveElastic and SolveSpring refer the current velocities for
 		// numerical stability, they should be called as late as possible.
 		if (m_allParticleFlags & b2_elasticParticle)
 		{
-			SolveElastic(subStep);
+			TS_ACC(SolveElastic(subStep));
 		}
 		if (m_allParticleFlags & b2_springParticle)
 		{
-			SolveSpring(subStep);
+			TS_ACC(SolveSpring(subStep));
 		}
 		LimitVelocity(subStep);
 		if (m_allGroupFlags & b2_rigidParticleGroup)
 		{
-			SolveRigidDamping();
+			TS_ACC(SolveRigidDamping());
 		}
 		if (m_allParticleFlags & b2_barrierParticle)
 		{
-			SolveBarrier(subStep);
+			TS_ACC(SolveBarrier(subStep));
 		}
 		// SolveCollision, SolveRigid and SolveWall should be called after
 		// other force functions because they may require particles to have
 		// specific velocities.
-		SolveCollision(subStep);
+		TS_ACC(SolveCollision(subStep));
+
 		if (m_allGroupFlags & b2_rigidParticleGroup)
 		{
-			SolveRigid(subStep);
+			TS_ACC(SolveRigid(subStep));
 		}
 		if (m_allParticleFlags & b2_wallParticle)
 		{
-			SolveWall();
+			TS_ACC(SolveWall());
 		}
 		// The particle positions can be updated only at the end of substep.
+		TS_START_ACC("updatePositions");
 		for (int32 i = 0; i < m_count; i++)
 		{
 			m_positionBuffer.data[i] += subStep.dt * m_velocityBuffer.data[i];
 			//m_velocityBuffer.data[i] *= 0.98; //oriol testing friction
 		}
+		TS_STOP_ACC("updatePositions");
 	}
 }
 
