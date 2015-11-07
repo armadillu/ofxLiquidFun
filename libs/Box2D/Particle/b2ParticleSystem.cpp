@@ -1115,6 +1115,11 @@ b2ParticleGroup* b2ParticleSystem::CreateParticleGroup(
 	group->m_firstIndex = firstIndex;
 	group->m_lastIndex = lastIndex;
 	group->m_strength = groupDef.strength;
+
+	//oriol
+	group->m_repulsionStrength = groupDef.replusionStrength;
+	group->m_tensileStrength = groupDef.tensileStrength;
+
 	group->m_userData = groupDef.userData;
 	group->m_transform = transform;
 	group->m_prev = NULL;
@@ -2997,19 +3002,27 @@ void b2ParticleSystem::Solve(const b2TimeStep& step)
 	// If particle lifetimes are enabled, destroy particles that are too old.
 	if (m_expirationTimeBuffer.data)
 	{
+		//TS_START_ACC("SolveLifetimes");
 		SolveLifetimes(step);
+		//TS_STOP_ACC("SolveLifetimes");
 	}
 	if (m_allParticleFlags & b2_zombieParticle)
 	{
+		//TS_START_ACC("SolveZombie");
 		SolveZombie();
+		//TS_STOP_ACC("SolveZombie");
 	}
 	if (m_needsUpdateAllParticleFlags)
 	{
+		//TS_START_ACC("UpdateAllParticleFlags");
 		UpdateAllParticleFlags();
+		//TS_STOP_ACC("UpdateAllParticleFlags");
 	}
 	if (m_needsUpdateAllGroupFlags)
 	{
+		//TS_START_ACC("UpdateAllGroupFlags");
 		UpdateAllGroupFlags();
+		//TS_STOP_ACC("UpdateAllGroupFlags");
 	}
 	if (m_paused)
 	{
@@ -3654,10 +3667,8 @@ void b2ParticleSystem::SolveTensile(const b2TimeStep& step)
 		}
 	}
 	float32 criticalVelocity = GetCriticalVelocity(step);
-	float32 pressureStrength = m_def.surfaceTensionPressureStrength
-							 * criticalVelocity;
-	float32 normalStrength = m_def.surfaceTensionNormalStrength
-						   * criticalVelocity;
+	float32 pressureStrength = m_def.surfaceTensionPressureStrength * criticalVelocity;
+	float32 normalStrength = m_def.surfaceTensionNormalStrength * criticalVelocity;
 	float32 maxVelocityVariation = b2_maxParticleForce * criticalVelocity;
 	for (int32 k = 0; k < m_contactBuffer.GetCount(); k++)
 	{
@@ -3670,10 +3681,16 @@ void b2ParticleSystem::SolveTensile(const b2TimeStep& step)
 			b2Vec2 n = contact.GetNormal();
 			float32 h = m_weightBuffer[a] + m_weightBuffer[b];
 			b2Vec2 s = m_accumulation2Buffer[b] - m_accumulation2Buffer[a];
+
+			//oriol hack to get group's repulsion gain
+			b2ParticleGroup* groupA = m_groupBuffer[a];
+			b2ParticleGroup* groupB = m_groupBuffer[b];
+			float oriolGain = 0.5 * (groupA->m_tensileStrength + groupB->m_tensileStrength);
+
 			float32 fn = b2Min(
 					pressureStrength * (h - 2) + normalStrength * b2Dot(s, n),
 					maxVelocityVariation) * w;
-			b2Vec2 f = fn * n;
+			b2Vec2 f = fn * n * oriolGain;
 			m_velocityBuffer.data[a] -= f;
 			m_velocityBuffer.data[b] += f;
 		}
@@ -3727,11 +3744,16 @@ void b2ParticleSystem::SolveRepulsive(const b2TimeStep& step)
 		{
 			int32 a = contact.GetIndexA();
 			int32 b = contact.GetIndexB();
-			if (m_groupBuffer[a] != m_groupBuffer[b])
-			{
+
+			//oriol hack to get group's repulsion gain
+			b2ParticleGroup* groupA = m_groupBuffer[a];
+			b2ParticleGroup* groupB = m_groupBuffer[b];
+			float oriolGain = 0.5 * (groupA->m_repulsionStrength + groupB->m_repulsionStrength);
+
+			if (m_groupBuffer[a] != m_groupBuffer[b]){
 				float32 w = contact.GetWeight();
 				b2Vec2 n = contact.GetNormal();
-				b2Vec2 f = repulsiveStrength * w * n;
+				b2Vec2 f = repulsiveStrength * w * n * oriolGain;
 				m_velocityBuffer.data[a] -= f;
 				m_velocityBuffer.data[b] += f;
 			}

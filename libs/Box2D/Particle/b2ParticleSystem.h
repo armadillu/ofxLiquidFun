@@ -53,6 +53,8 @@ struct b2AABB;
 struct FindContactInput;
 struct FindContactCheck;
 
+#define B2_USE_16_BIT_PARTICLE_INDICES true
+
 struct b2ParticleContact
 {
 private:

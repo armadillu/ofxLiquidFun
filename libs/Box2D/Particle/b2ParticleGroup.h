@@ -64,6 +64,8 @@ struct b2ParticleGroupDef
 		angularVelocity = 0;
 		color = b2ParticleColor_zero;
 		strength = 1;
+		tensileStrength = 1.0; 		//oriol
+		replusionStrength = 1.0;	//oriol
 		shape = NULL;
 		shapes = NULL;
 		shapeCount = 0;
@@ -113,6 +115,11 @@ struct b2ParticleGroupDef
 	/// The strength of cohesion among the particles in a group with flag
 	/// b2_elasticParticle or b2_springParticle.
 	float32 strength;
+
+	//oriol
+	float32 tensileStrength;
+	float32 replusionStrength;
+	//
 
 	/// The shape where particles will be added.
 	const b2Shape* shape;
@@ -267,6 +274,8 @@ private:
 	int32 m_firstIndex, m_lastIndex;
 	uint32 m_groupFlags;
 	float32 m_strength;
+	float32 m_repulsionStrength;	//oriol
+	float32 m_tensileStrength;		//oriol
 	b2ParticleGroup* m_prev;
 	b2ParticleGroup* m_next;
 
