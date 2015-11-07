@@ -3692,7 +3692,10 @@ void b2ParticleSystem::SolveTensile(const b2TimeStep& step)
 			//oriol hack to get group's repulsion gain
 			b2ParticleGroup* groupA = m_groupBuffer[a];
 			b2ParticleGroup* groupB = m_groupBuffer[b];
-			float oriolGain = 0.5 * (groupA->m_tensileStrength + groupB->m_tensileStrength);
+			float oriolGain = 1.0;
+			if(groupB && groupA){
+				oriolGain = 0.5 * (groupA->m_tensileStrength + groupB->m_tensileStrength);
+			}
 
 			float32 fn = b2Min(
 					pressureStrength * (h - 2) + normalStrength * b2Dot(s, n),
@@ -3755,7 +3758,10 @@ void b2ParticleSystem::SolveRepulsive(const b2TimeStep& step)
 			//oriol hack to get group's repulsion gain
 			b2ParticleGroup* groupA = m_groupBuffer[a];
 			b2ParticleGroup* groupB = m_groupBuffer[b];
-			float oriolGain = 0.5 * (groupA->m_repulsionStrength + groupB->m_repulsionStrength);
+			float oriolGain = 1.0;
+			if(groupB && groupA){
+				oriolGain = 0.5 * (groupA->m_repulsionStrength + groupB->m_repulsionStrength);
+			}
 
 			if (m_groupBuffer[a] != m_groupBuffer[b]){
 				float32 w = contact.GetWeight();
