@@ -1091,7 +1091,24 @@ private:
 	UserOverridableBuffer<b2ParticleHandle*> m_handleIndexBuffer;
 	UserOverridableBuffer<uint32> m_flagsBuffer;
 	UserOverridableBuffer<b2Vec2> m_positionBuffer;
+public:
 	UserOverridableBuffer<b2Vec2> m_velocityBuffer;
+
+	UserOverridableBuffer<b2Vec2> m_ForceBasedVelocityBuffer; //oriol
+
+	void resetVel(){
+		printf( "### reset vel #####################\n");
+		memset((void*)&(m_ForceBasedVelocityBuffer.data[0]), 0, sizeof(b2Vec2) * m_count);
+////		memset((void*)&(m_velocityBuffer.data[0]), 0, sizeof(b2Vec2) * m_count);
+//		for (int32 i = 0; i < m_count; i++)
+//		{
+//			m_velocityBuffer.data[i] *= 0.98;
+//			m_ForceBasedVelocityBuffer.data[i] *= 0.98;
+//		}
+
+	};
+//private:
+
 	b2Vec2* m_forceBuffer;
 	/// m_weightBuffer is populated in ComputeWeight and used in
 	/// ComputeDepth(), SolveStaticPressure() and SolvePressure().

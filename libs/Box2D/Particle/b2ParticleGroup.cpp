@@ -19,6 +19,9 @@
 #include <Box2D/Particle/b2ParticleSystem.h>
 #include <Box2D/Dynamics/b2World.h>
 
+#include <iostream>
+#include "ofMain.h"
+
 #if LIQUIDFUN_EXTERNAL_LANGUAGE_API
 #include <Box2D/Collision/Shapes/b2CircleShape.h>
 #endif //LIQUIDFUN_EXTERNAL_LANGUAGE_API
@@ -64,9 +67,63 @@ void b2ParticleGroup::SetGroupFlags(uint32 flags)
 	m_system->SetGroupFlags(this, flags);
 }
 
+
+void b2ParticleGroup::UpdateStatistics2() const{
+
+
+	float32 m = m_system->GetParticleMass();
+	m_mass = 0;
+	m_center.SetZero();
+	m_linearVelocity.SetZero();
+
+	cout << "## UpdateStatistics2 " << endl;
+	for (int32 i = m_firstIndex; i < m_lastIndex; i++)
+	{
+		m_mass += m;
+		m_center += m * m_system->m_positionBuffer.data[i];
+		//oriol
+		if(i==0){
+			std::cout << ofGetFrameNum() << " force vel " << i << "   [" << m_system->m_ForceBasedVelocityBuffer.data[i].x <<
+			", " << m_system->m_ForceBasedVelocityBuffer.data[i].y << "]" << std::endl;
+			std::cout << ofGetFrameNum() << " totaled vel " << i << " [" << m_system->m_velocityBuffer.data[i].x <<
+			", " << m_system->m_velocityBuffer.data[i].y << "]" << std::endl;
+
+		}
+		m_linearVelocity += m * (m_system->m_velocityBuffer.data[i] - m_system->m_ForceBasedVelocityBuffer.data[i]);
+	}
+	if (m_mass > 0)
+	{
+		m_center *= 1 / m_mass;
+		m_linearVelocity *= 1 / m_mass;
+	}
+	m_inertia = 0;
+	m_angularVelocity = 0;
+
+	for (int32 i = m_firstIndex; i < m_lastIndex; i++)
+	{
+
+		b2Vec2 tv = m_system->m_velocityBuffer.data[i];
+		b2Vec2 fv = m_system->m_ForceBasedVelocityBuffer.data[i];
+
+		b2Vec2 p = m_system->m_positionBuffer.data[i] - m_center;
+		b2Vec2 v = m_system->m_velocityBuffer.data[i] - m_linearVelocity;
+		//oriol
+			v -= m_system->m_ForceBasedVelocityBuffer.data[i]; //remove the vel component that's created by external (user) forces
+		//oriol
+		m_inertia += m * b2Dot(p, p);
+		m_angularVelocity += m * b2Cross(p, v);
+	}
+	if (m_inertia > 0)
+	{
+		m_angularVelocity *= 1 / m_inertia;
+	}
+
+}
+
+
 void b2ParticleGroup::UpdateStatistics() const
 {
-	if (m_timestamp != m_system->m_timestamp)
+	//if (m_timestamp != m_system->m_timestamp)
 	{
 		float32 m = m_system->GetParticleMass();
 		m_mass = 0;
@@ -85,6 +142,7 @@ void b2ParticleGroup::UpdateStatistics() const
 		}
 		m_inertia = 0;
 		m_angularVelocity = 0;
+
 		for (int32 i = m_firstIndex; i < m_lastIndex; i++)
 		{
 			b2Vec2 p = m_system->m_positionBuffer.data[i] - m_center;
@@ -96,7 +154,7 @@ void b2ParticleGroup::UpdateStatistics() const
 		{
 			m_angularVelocity *= 1 / m_inertia;
 		}
-		m_timestamp = m_system->m_timestamp;
+		//m_timestamp = m_system->m_timestamp;
 	}
 }
 

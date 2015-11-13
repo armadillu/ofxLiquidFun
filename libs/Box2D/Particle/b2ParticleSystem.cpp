@@ -487,6 +487,7 @@ b2ParticleSystem::~b2ParticleSystem()
 	FreeUserOverridableBuffer(&m_consecutiveContactStepsBuffer);
 	FreeUserOverridableBuffer(&m_positionBuffer);
 	FreeUserOverridableBuffer(&m_velocityBuffer);
+	FreeUserOverridableBuffer(&m_ForceBasedVelocityBuffer);
 	FreeUserOverridableBuffer(&m_colorBuffer);
 	FreeUserOverridableBuffer(&m_userDataBuffer);
 	FreeUserOverridableBuffer(&m_expirationTimeBuffer);
@@ -617,6 +618,7 @@ void b2ParticleSystem::ReallocateInternalAllocatedBuffers(int32 capacity)
 	capacity = LimitCapacity(capacity, m_flagsBuffer.userSuppliedCapacity);
 	capacity = LimitCapacity(capacity, m_positionBuffer.userSuppliedCapacity);
 	capacity = LimitCapacity(capacity, m_velocityBuffer.userSuppliedCapacity);
+	capacity = LimitCapacity(capacity, m_ForceBasedVelocityBuffer.userSuppliedCapacity);
 	capacity = LimitCapacity(capacity, m_colorBuffer.userSuppliedCapacity);
 	capacity = LimitCapacity(capacity, m_userDataBuffer.userSuppliedCapacity);
 	if (m_internalAllocatedCapacity < capacity)
@@ -639,8 +641,14 @@ void b2ParticleSystem::ReallocateInternalAllocatedBuffers(int32 capacity)
 			capacity, stuck);
 		m_positionBuffer.data = ReallocateBuffer(
 			&m_positionBuffer, m_internalAllocatedCapacity, capacity, false);
+
 		m_velocityBuffer.data = ReallocateBuffer(
 			&m_velocityBuffer, m_internalAllocatedCapacity, capacity, false);
+
+		m_ForceBasedVelocityBuffer.data = ReallocateBuffer(
+												 &m_ForceBasedVelocityBuffer, m_internalAllocatedCapacity, capacity, false);
+
+
 		m_forceBuffer = ReallocateBuffer(
 			m_forceBuffer, 0, m_internalAllocatedCapacity, capacity, false);
 		m_weightBuffer = ReallocateBuffer(
@@ -717,7 +725,10 @@ int32 b2ParticleSystem::CreateParticle(const b2ParticleDef& def)
 		m_consecutiveContactStepsBuffer.data[index] = 0;
 	}
 	m_positionBuffer.data[index] = def.position;
+
 	m_velocityBuffer.data[index] = def.velocity;
+	m_ForceBasedVelocityBuffer.data[index] = def.velocity;
+
 	m_weightBuffer[index] = 0;
 	m_forceBuffer[index] = b2Vec2_zero;
 	if (m_staticPressureBuffer)
@@ -3821,10 +3832,24 @@ void b2ParticleSystem::SolveSolid(const b2TimeStep& step)
 
 void b2ParticleSystem::SolveForce(const b2TimeStep& step)
 {
+
+	cout << ">>> Solve Force " << ofGetFrameNum() << " ##########################################" << endl;
+
 	float32 velocityPerForce = step.dt * GetParticleInvMass();
+
 	for (int32 i = 0; i < m_count; i++)
 	{
-		m_velocityBuffer.data[i] += velocityPerForce * m_forceBuffer[i];
+
+		b2Vec2 v = velocityPerForce * m_forceBuffer[i];
+		m_ForceBasedVelocityBuffer.data[i] += v;
+		m_velocityBuffer.data[i] += v;
+		if(i==0){
+			cout << ofGetFrameNum() << " vel " << i << " [" << m_ForceBasedVelocityBuffer.data[i].x <<
+			", " << m_ForceBasedVelocityBuffer.data[i].y << "]" << endl;
+			std::cout << ofGetFrameNum() << " totaled vel " << i << " [" << m_velocityBuffer.data[i].x <<
+			", " << m_velocityBuffer.data[i].y << "]" << std::endl;
+
+		}
 	}
 	m_hasForce = false;
 }
