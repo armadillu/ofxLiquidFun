@@ -727,7 +727,7 @@ int32 b2ParticleSystem::CreateParticle(const b2ParticleDef& def)
 	m_positionBuffer.data[index] = def.position;
 
 	m_velocityBuffer.data[index] = def.velocity;
-	m_ForceBasedVelocityBuffer.data[index] = def.velocity;
+	m_ForceBasedVelocityBuffer.data[index] = b2Vec2();
 
 	m_weightBuffer[index] = 0;
 	m_forceBuffer[index] = b2Vec2_zero;
@@ -2817,7 +2817,7 @@ void b2ParticleSystem::SolveCollision(const b2TimeStep& step)
 	aabb.upperBound.y = -b2_maxFloat;
 	for (int32 i = 0; i < m_count; i++)
 	{
-		b2Vec2 v = m_velocityBuffer.data[i];
+		b2Vec2 v = m_velocityBuffer.data[i] + m_ForceBasedVelocityBuffer.data[i];
 		b2Vec2 p1 = m_positionBuffer.data[i];
 		b2Vec2 p2 = p1 + step.dt * v;
 		aabb.lowerBound = b2Min(aabb.lowerBound, b2Min(p1, p2));
@@ -2830,7 +2830,7 @@ void b2ParticleSystem::SolveCollision(const b2TimeStep& step)
 		{
 			b2Body* body = fixture->GetBody();
 			b2Vec2 ap = m_system->m_positionBuffer.data[a];
-			b2Vec2 av = m_system->m_velocityBuffer.data[a];
+			b2Vec2 av = (m_system->m_velocityBuffer.data[a] + m_system->m_ForceBasedVelocityBuffer.data[a]);
 			b2RayCastOutput output;
 			b2RayCastInput input;
 			if (m_system->m_iterationIndex == 0)
@@ -3137,7 +3137,7 @@ void b2ParticleSystem::Solve(const b2TimeStep& step)
 		TS_START_ACC("updatePositions");
 		for (int32 i = 0; i < m_count; i++)
 		{
-			m_positionBuffer.data[i] += subStep.dt * m_velocityBuffer.data[i];
+			m_positionBuffer.data[i] += subStep.dt * (m_velocityBuffer.data[i] + m_ForceBasedVelocityBuffer.data[i]);
 			//m_velocityBuffer.data[i] *= 0.98; //oriol testing friction
 		}
 		TS_STOP_ACC("updatePositions");
@@ -3322,7 +3322,7 @@ void b2ParticleSystem::SolveDamping(const b2TimeStep& step)
 		b2Vec2 n = contact.normal;
 		b2Vec2 p = m_positionBuffer.data[a];
 		b2Vec2 v = b->GetLinearVelocityFromWorldPoint(p) -
-				   m_velocityBuffer.data[a];
+				   (m_velocityBuffer.data[a] + m_ForceBasedVelocityBuffer.data[a]);
 		float32 vn = b2Dot(v, n);
 		if (vn < 0)
 		{
@@ -3340,7 +3340,8 @@ void b2ParticleSystem::SolveDamping(const b2TimeStep& step)
 		int32 b = contact.GetIndexB();
 		float32 w = contact.GetWeight();
 		b2Vec2 n = contact.GetNormal();
-		b2Vec2 v = m_velocityBuffer.data[b] - m_velocityBuffer.data[a];
+		b2Vec2 v = (m_velocityBuffer.data[b] + m_ForceBasedVelocityBuffer.data[b]) -
+					(m_velocityBuffer.data[a] + m_ForceBasedVelocityBuffer.data[a]);
 		float32 vn = b2Dot(v, n);
 		if (vn < 0)
 		{
@@ -3842,12 +3843,12 @@ void b2ParticleSystem::SolveForce(const b2TimeStep& step)
 
 		b2Vec2 v = velocityPerForce * m_forceBuffer[i];
 		m_ForceBasedVelocityBuffer.data[i] += v;
-		m_velocityBuffer.data[i] += v;
+		//m_velocityBuffer.data[i] += v;
 		if(i==0){
-			cout << ofGetFrameNum() << " vel " << i << " [" << m_ForceBasedVelocityBuffer.data[i].x <<
-			", " << m_ForceBasedVelocityBuffer.data[i].y << "]" << endl;
-			std::cout << ofGetFrameNum() << " totaled vel " << i << " [" << m_velocityBuffer.data[i].x <<
-			", " << m_velocityBuffer.data[i].y << "]" << std::endl;
+//			cout << ofGetFrameNum() << " vel " << i << " [" << m_ForceBasedVelocityBuffer.data[i].x <<
+//			", " << m_ForceBasedVelocityBuffer.data[i].y << "]" << endl;
+//			std::cout << ofGetFrameNum() << " totaled vel " << i << " [" << m_velocityBuffer.data[i].x <<
+//			", " << m_velocityBuffer.data[i].y << "]" << std::endl;
 
 		}
 	}

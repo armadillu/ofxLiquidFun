@@ -83,13 +83,15 @@ void b2ParticleGroup::UpdateStatistics2() const{
 		m_center += m * m_system->m_positionBuffer.data[i];
 		//oriol
 		if(i==0){
-			std::cout << ofGetFrameNum() << " force vel " << i << "   [" << m_system->m_ForceBasedVelocityBuffer.data[i].x <<
-			", " << m_system->m_ForceBasedVelocityBuffer.data[i].y << "]" << std::endl;
-			std::cout << ofGetFrameNum() << " totaled vel " << i << " [" << m_system->m_velocityBuffer.data[i].x <<
-			", " << m_system->m_velocityBuffer.data[i].y << "]" << std::endl;
+//			std::cout << ofGetFrameNum() << " force vel " << i << "   [" << m_system->m_ForceBasedVelocityBuffer.data[i].x <<
+//			", " << m_system->m_ForceBasedVelocityBuffer.data[i].y << "]" << std::endl;
+//			std::cout << ofGetFrameNum() << " totaled vel " << i << " [" << m_system->m_velocityBuffer.data[i].x <<
+//			", " << m_system->m_velocityBuffer.data[i].y << "]" << std::endl;
 
 		}
-		m_linearVelocity += m * (m_system->m_velocityBuffer.data[i] - m_system->m_ForceBasedVelocityBuffer.data[i]);
+		m_linearVelocity += m * ( m_system->m_velocityBuffer.data[i] +
+								 m_system->m_ForceBasedVelocityBuffer.data[i]
+								 );
 	}
 	if (m_mass > 0)
 	{
@@ -101,14 +103,10 @@ void b2ParticleGroup::UpdateStatistics2() const{
 
 	for (int32 i = m_firstIndex; i < m_lastIndex; i++)
 	{
-
-		b2Vec2 tv = m_system->m_velocityBuffer.data[i];
-		b2Vec2 fv = m_system->m_ForceBasedVelocityBuffer.data[i];
-
 		b2Vec2 p = m_system->m_positionBuffer.data[i] - m_center;
-		b2Vec2 v = m_system->m_velocityBuffer.data[i] - m_linearVelocity;
+		b2Vec2 v = m_system->m_ForceBasedVelocityBuffer.data[i] - m_linearVelocity;
 		//oriol
-			v -= m_system->m_ForceBasedVelocityBuffer.data[i]; //remove the vel component that's created by external (user) forces
+		//	v -= m_system->m_ForceBasedVelocityBuffer.data[i]; //remove the vel component that's created by external (user) forces
 		//oriol
 		m_inertia += m * b2Dot(p, p);
 		m_angularVelocity += m * b2Cross(p, v);

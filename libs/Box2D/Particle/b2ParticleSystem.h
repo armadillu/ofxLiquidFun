@@ -1100,12 +1100,9 @@ public:
 		printf( "### reset vel #####################\n");
 		memset((void*)&(m_ForceBasedVelocityBuffer.data[0]), 0, sizeof(b2Vec2) * m_count);
 ////		memset((void*)&(m_velocityBuffer.data[0]), 0, sizeof(b2Vec2) * m_count);
-//		for (int32 i = 0; i < m_count; i++)
-//		{
-//			m_velocityBuffer.data[i] *= 0.98;
-//			m_ForceBasedVelocityBuffer.data[i] *= 0.98;
+//		for (int32 i = 0; i < m_count; i++){
+//			m_ForceBasedVelocityBuffer.data[i] *= 0.9;
 //		}
-
 	};
 //private:
 
