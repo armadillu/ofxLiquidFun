@@ -274,9 +274,11 @@ private:
 	b2ParticleSystem* m_system;
 	int32 m_firstIndex, m_lastIndex;
 	uint32 m_groupFlags;
-	float32 m_strength;
+	float32 m_strength; //used for springs
+public:
 	float32 m_repulsionStrength;	//oriol
 	float32 m_tensileStrength;		//oriol
+private:
 	b2ParticleGroup* m_prev;
 	b2ParticleGroup* m_next;
 

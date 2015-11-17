@@ -3730,7 +3730,11 @@ void b2ParticleSystem::SolveTensile(const b2TimeStep& step)
 				if(groupB == groupA){
 					oriolGain = 0.0; //no surface tensions inside the group
 				}else{
-					oriolGain = 0.5 * (groupA->m_tensileStrength + groupB->m_tensileStrength);
+					if (groupA->m_tensileStrength > 0.0f && groupB->m_tensileStrength > 0.0f){
+						oriolGain = 0.5 * (groupA->m_tensileStrength + groupB->m_tensileStrength);
+					}else{
+						oriolGain = 0.0f;
+					}
 				}
 			}
 
