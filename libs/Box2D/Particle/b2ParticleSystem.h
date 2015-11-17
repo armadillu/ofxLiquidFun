@@ -468,6 +468,8 @@ public:
 	b2Vec2* GetVelocityBuffer();
 	const b2Vec2* GetVelocityBuffer() const;
 
+	b2Vec2* GetVelocityBuffer2();
+
 	/// Get the color of each particle
 	/// Array is length GetParticleCount()
 	/// @return the pointer to the head of the particle colors array.
@@ -1092,6 +1094,10 @@ private:
 	UserOverridableBuffer<uint32> m_flagsBuffer;
 	UserOverridableBuffer<b2Vec2> m_positionBuffer;
 	UserOverridableBuffer<b2Vec2> m_velocityBuffer;
+
+	UserOverridableBuffer<b2Vec2> m_velocityBuffer2;
+
+
 	b2Vec2* m_forceBuffer;
 	/// m_weightBuffer is populated in ComputeWeight and used in
 	/// ComputeDepth(), SolveStaticPressure() and SolvePressure().
@@ -1381,6 +1387,11 @@ inline b2Vec2* b2ParticleSystem::GetPositionBuffer()
 inline b2Vec2* b2ParticleSystem::GetVelocityBuffer()
 {
 	return m_velocityBuffer.data;
+}
+
+inline b2Vec2* b2ParticleSystem::GetVelocityBuffer2()
+{
+	return m_velocityBuffer2.data;
 }
 
 inline float32* b2ParticleSystem::GetWeightBuffer()

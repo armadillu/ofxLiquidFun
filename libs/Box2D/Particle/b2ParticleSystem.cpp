@@ -487,10 +487,14 @@ b2ParticleSystem::~b2ParticleSystem()
 	FreeUserOverridableBuffer(&m_consecutiveContactStepsBuffer);
 	FreeUserOverridableBuffer(&m_positionBuffer);
 	FreeUserOverridableBuffer(&m_velocityBuffer);
+
+	FreeUserOverridableBuffer(&m_velocityBuffer2); //oriol
+
 	FreeUserOverridableBuffer(&m_colorBuffer);
 	FreeUserOverridableBuffer(&m_userDataBuffer);
 	FreeUserOverridableBuffer(&m_expirationTimeBuffer);
 	FreeUserOverridableBuffer(&m_indexByExpirationTimeBuffer);
+
 	FreeBuffer(&m_forceBuffer, m_internalAllocatedCapacity);
 	FreeBuffer(&m_weightBuffer, m_internalAllocatedCapacity);
 	FreeBuffer(&m_staticPressureBuffer, m_internalAllocatedCapacity);
@@ -617,6 +621,9 @@ void b2ParticleSystem::ReallocateInternalAllocatedBuffers(int32 capacity)
 	capacity = LimitCapacity(capacity, m_flagsBuffer.userSuppliedCapacity);
 	capacity = LimitCapacity(capacity, m_positionBuffer.userSuppliedCapacity);
 	capacity = LimitCapacity(capacity, m_velocityBuffer.userSuppliedCapacity);
+
+	capacity = LimitCapacity(capacity, m_velocityBuffer2.userSuppliedCapacity);//oriol
+
 	capacity = LimitCapacity(capacity, m_colorBuffer.userSuppliedCapacity);
 	capacity = LimitCapacity(capacity, m_userDataBuffer.userSuppliedCapacity);
 	if (m_internalAllocatedCapacity < capacity)
@@ -641,6 +648,12 @@ void b2ParticleSystem::ReallocateInternalAllocatedBuffers(int32 capacity)
 			&m_positionBuffer, m_internalAllocatedCapacity, capacity, false);
 		m_velocityBuffer.data = ReallocateBuffer(
 			&m_velocityBuffer, m_internalAllocatedCapacity, capacity, false);
+
+
+		m_velocityBuffer2.data = ReallocateBuffer(
+												 &m_velocityBuffer2, m_internalAllocatedCapacity, capacity, false); //oriol
+
+
 		m_forceBuffer = ReallocateBuffer(
 			m_forceBuffer, 0, m_internalAllocatedCapacity, capacity, false);
 		m_weightBuffer = ReallocateBuffer(
@@ -718,6 +731,8 @@ int32 b2ParticleSystem::CreateParticle(const b2ParticleDef& def)
 	}
 	m_positionBuffer.data[index] = def.position;
 	m_velocityBuffer.data[index] = def.velocity;
+	m_velocityBuffer.data[index] = b2Vec2();
+
 	m_weightBuffer[index] = 0;
 	m_forceBuffer[index] = b2Vec2_zero;
 	if (m_staticPressureBuffer)
@@ -3693,8 +3708,12 @@ void b2ParticleSystem::SolveTensile(const b2TimeStep& step)
 			b2ParticleGroup* groupA = m_groupBuffer[a];
 			b2ParticleGroup* groupB = m_groupBuffer[b];
 			float oriolGain = 1.0;
-			if(groupB && groupA){
-				oriolGain = 0.5 * (groupA->m_tensileStrength + groupB->m_tensileStrength);
+			if(groupB && groupA){ //only if particles belong to a group
+				if(groupB == groupA){
+					oriolGain = 0.0; //no surface tensions inside the group
+				}else{
+					oriolGain = 0.5 * (groupA->m_tensileStrength + groupB->m_tensileStrength);
+				}
 			}
 
 			float32 fn = b2Min(
@@ -3759,8 +3778,12 @@ void b2ParticleSystem::SolveRepulsive(const b2TimeStep& step)
 			b2ParticleGroup* groupA = m_groupBuffer[a];
 			b2ParticleGroup* groupB = m_groupBuffer[b];
 			float oriolGain = 1.0;
-			if(groupB && groupA){
-				oriolGain = 0.5 * (groupA->m_repulsionStrength + groupB->m_repulsionStrength);
+			if(groupB && groupA){ //only if particles belong to a group
+				if(groupB == groupA){
+					oriolGain = 0.0; //no repulsive tensions inside the group
+				}else{
+					oriolGain = 0.5 * (groupA->m_tensileStrength + groupB->m_tensileStrength);
+				}
 			}
 
 			if (m_groupBuffer[a] != m_groupBuffer[b]){
