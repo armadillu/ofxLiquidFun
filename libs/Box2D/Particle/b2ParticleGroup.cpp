@@ -100,6 +100,40 @@ void b2ParticleGroup::UpdateStatistics() const
 	}
 }
 
+void b2ParticleGroup::UpdateStatistics2() const{
+
+	float32 m = m_system->GetParticleMass();
+	m_mass = 0;
+	m_center.SetZero();
+	b2Vec2 m_linearVelocity = b2Vec2_zero;
+
+	for (int32 i = m_firstIndex; i < m_lastIndex; i++)
+	{
+		m_mass += m;
+		m_center += m * m_system->m_positionBuffer.data[i];
+		m_linearVelocity += m * m_system->m_velocityBuffer2.data[i];
+	}
+	if (m_mass > 0)
+	{
+		m_center *= 1 / m_mass;
+		m_linearVelocity *= 1 / m_mass;
+	}
+	float32 m_inertia = 0;
+	m_angularVelocity2 = 0;
+	for (int32 i = m_firstIndex; i < m_lastIndex; i++)
+	{
+		b2Vec2 p = m_system->m_positionBuffer.data[i] - m_center;
+		b2Vec2 v = m_system->m_velocityBuffer2.data[i] - m_linearVelocity;
+		m_inertia += m * b2Dot(p, p);
+		m_angularVelocity2 += m * b2Cross(p, v);
+	}
+	if (m_inertia > 0)
+	{
+		m_angularVelocity2 *= 1 / m_inertia;
+	}
+}
+
+
 void b2ParticleGroup::ApplyForce(const b2Vec2& force)
 {
 	m_system->ApplyForce(m_firstIndex, m_lastIndex, force);

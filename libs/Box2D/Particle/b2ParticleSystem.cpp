@@ -31,6 +31,7 @@
 
 #include "ofxRemoteUIServer.h"
 #include "ofxTimeMeasurements.h"
+#include "P.h"
 
 // Define LIQUIDFUN_SIMD_TEST_VS_REFERENCE to run both SIMD and reference
 // versions, and assert that the results are identical. This is useful when
@@ -3864,7 +3865,7 @@ void b2ParticleSystem::SolveSolid(const b2TimeStep& step)
 void b2ParticleSystem::MergeVelocities(){
 	for (int32 i = 0; i < m_count; i++){
 		//m_velocityBuffer.data[i] += m_velocityBuffer2.data[i];
-		b2Vec2 loss = m_velocityBuffer2.data[i] * 0.5;
+		b2Vec2 loss = m_velocityBuffer2.data[i] * 1.0f;
 		m_velocityBuffer2.data[i] -= loss;
 		m_velocityBuffer.data[i] += loss;
 	}

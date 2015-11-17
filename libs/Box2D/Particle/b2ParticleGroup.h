@@ -221,6 +221,7 @@ public:
 
 	/// Get the angular velocity of the group.
 	float32 GetAngularVelocity() const;
+	float32 GetAngularVelocity2() const;
 
 	/// Get the position of the group's origin and rotation.
 	/// Used only with groups of rigid particles.
@@ -285,6 +286,7 @@ private:
 	mutable b2Vec2 m_center;
 	mutable b2Vec2 m_linearVelocity;
 	mutable float32 m_angularVelocity;
+	mutable float32 m_angularVelocity2;
 	mutable b2Transform m_transform;
 
 	void* m_userData;
@@ -292,6 +294,7 @@ private:
 	b2ParticleGroup();
 	~b2ParticleGroup();
 	void UpdateStatistics() const;
+	void UpdateStatistics2() const;
 
 };
 
@@ -367,6 +370,12 @@ inline float32 b2ParticleGroup::GetAngularVelocity() const
 {
 	UpdateStatistics();
 	return m_angularVelocity;
+}
+
+inline float32 b2ParticleGroup::GetAngularVelocity2() const
+{
+	UpdateStatistics2();
+	return m_angularVelocity2;
 }
 
 inline const b2Transform& b2ParticleGroup::GetTransform() const
