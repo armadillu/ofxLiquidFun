@@ -415,6 +415,7 @@ b2ParticleSystem::b2ParticleSystem(const b2ParticleSystemDef* def,
 	m_count = 0;
 	m_internalAllocatedCapacity = 0;
 	m_forceBuffer = NULL;
+	m_forceBuffer2 = NULL;
 	m_weightBuffer = NULL;
 	m_staticPressureBuffer = NULL;
 	m_accumulationBuffer = NULL;
@@ -496,6 +497,7 @@ b2ParticleSystem::~b2ParticleSystem()
 	FreeUserOverridableBuffer(&m_indexByExpirationTimeBuffer);
 
 	FreeBuffer(&m_forceBuffer, m_internalAllocatedCapacity);
+	FreeBuffer(&m_forceBuffer2, m_internalAllocatedCapacity);
 	FreeBuffer(&m_weightBuffer, m_internalAllocatedCapacity);
 	FreeBuffer(&m_staticPressureBuffer, m_internalAllocatedCapacity);
 	FreeBuffer(&m_accumulationBuffer, m_internalAllocatedCapacity);
@@ -656,6 +658,10 @@ void b2ParticleSystem::ReallocateInternalAllocatedBuffers(int32 capacity)
 
 		m_forceBuffer = ReallocateBuffer(
 			m_forceBuffer, 0, m_internalAllocatedCapacity, capacity, false);
+
+		m_forceBuffer2 = ReallocateBuffer(
+										 m_forceBuffer2, 0, m_internalAllocatedCapacity, capacity, false);
+
 		m_weightBuffer = ReallocateBuffer(
 			m_weightBuffer, 0, m_internalAllocatedCapacity, capacity, false);
 		m_staticPressureBuffer = ReallocateBuffer(
@@ -731,10 +737,13 @@ int32 b2ParticleSystem::CreateParticle(const b2ParticleDef& def)
 	}
 	m_positionBuffer.data[index] = def.position;
 	m_velocityBuffer.data[index] = def.velocity;
-	m_velocityBuffer.data[index] = b2Vec2();
+	m_velocityBuffer.data[index] = b2Vec2_zero;
+	m_velocityBuffer2.data[index] = b2Vec2_zero; //oriol
 
 	m_weightBuffer[index] = 0;
 	m_forceBuffer[index] = b2Vec2_zero;
+	m_forceBuffer2[index] = b2Vec2_zero;
+
 	if (m_staticPressureBuffer)
 	{
 		m_staticPressureBuffer[index] = 0;
@@ -1473,6 +1482,7 @@ int32 b2ParticleSystem::CloneParticle(int32 oldIndex, b2ParticleGroup* group)
 	if (m_hasForce)
 	{
 		m_forceBuffer[newIndex] = m_forceBuffer[oldIndex];
+		m_forceBuffer2[newIndex] = m_forceBuffer2[oldIndex];
 	}
 	if (m_staticPressureBuffer)
 	{
@@ -3009,6 +3019,7 @@ void b2ParticleSystem::SolveBarrier(const b2TimeStep& step)
 	}
 }
 
+#pragma mark - 😡😡😡😡😡😡😡
 void b2ParticleSystem::Solve(const b2TimeStep& step)
 {
 	if (m_count == 0)
@@ -3069,6 +3080,10 @@ void b2ParticleSystem::Solve(const b2TimeStep& step)
 		if (m_hasForce)
 		{
 			TS_ACC(SolveForce(subStep));
+		}
+		if (m_hasForce2)
+		{
+			TS_ACC(SolveForce2(subStep));
 		}
 		if (m_allParticleFlags & b2_viscousParticle)
 		{
@@ -3147,6 +3162,8 @@ void b2ParticleSystem::Solve(const b2TimeStep& step)
 		TS_STOP_ACC("updatePositions");
 	}
 }
+
+#pragma mark -
 
 void b2ParticleSystem::UpdateAllParticleFlags()
 {
@@ -3842,15 +3859,38 @@ void b2ParticleSystem::SolveSolid(const b2TimeStep& step)
 	}
 }
 
-void b2ParticleSystem::SolveForce(const b2TimeStep& step)
-{
+
+//oriol - merge separate vels from last frame into actual velocities
+void b2ParticleSystem::MergeVelocities(){
+	for (int32 i = 0; i < m_count; i++){
+		//m_velocityBuffer.data[i] += m_velocityBuffer2.data[i];
+		b2Vec2 loss = m_velocityBuffer2.data[i] * 0.5;
+		m_velocityBuffer2.data[i] -= loss;
+		m_velocityBuffer.data[i] += loss;
+	}
+}
+
+#pragma mark - Solveforce
+void b2ParticleSystem::SolveForce(const b2TimeStep& step){
+
 	float32 velocityPerForce = step.dt * GetParticleInvMass();
-	for (int32 i = 0; i < m_count; i++)
-	{
+	for (int32 i = 0; i < m_count; i++){
 		m_velocityBuffer.data[i] += velocityPerForce * m_forceBuffer[i];
 	}
 	m_hasForce = false;
 }
+
+void b2ParticleSystem::SolveForce2(const b2TimeStep& step){
+
+	float32 velocityPerForce = step.dt * GetParticleInvMass();
+	for (int32 i = 0; i < m_count; i++){
+		//m_velocityBuffer.data[i] += velocityPerForce * m_forceBuffer[i];
+		m_velocityBuffer2.data[i] += velocityPerForce * m_forceBuffer2[i];
+	}
+	m_hasForce2 = false;
+}
+
+#pragma mark -
 
 void b2ParticleSystem::SolveColorMixing()
 {
@@ -4222,6 +4262,7 @@ void b2ParticleSystem::RotateBuffer(int32 start, int32 mid, int32 end)
 		std::rotate(m_forceBuffer + start, m_forceBuffer + mid,
 					m_forceBuffer + end);
 	}
+
 	if (m_staticPressureBuffer)
 	{
 		std::rotate(m_staticPressureBuffer + start,
@@ -4535,6 +4576,15 @@ inline void b2ParticleSystem::PrepareForceBuffer()
 	}
 }
 
+inline void b2ParticleSystem::PrepareForceBuffer2()
+{
+	if (!m_hasForce2)
+	{
+		memset(m_forceBuffer2, 0, sizeof(*m_forceBuffer2) * m_count);
+		m_hasForce2 = true;
+	}
+}
+
 void b2ParticleSystem::ApplyForce(int32 firstIndex, int32 lastIndex,
 								  const b2Vec2& force)
 {
@@ -4572,6 +4622,13 @@ void b2ParticleSystem::ParticleApplyForce(int32 index, const b2Vec2& force)
 		m_forceBuffer[index] += force;
 	}
 }
+
+void b2ParticleSystem::ParticleApplyForce2(int32 index, const b2Vec2& force)
+{
+	PrepareForceBuffer2();
+	m_forceBuffer2[index] += force;
+}
+
 
 void b2ParticleSystem::ApplyLinearImpulse(int32 firstIndex, int32 lastIndex,
 										  const b2Vec2& impulse)

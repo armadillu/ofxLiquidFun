@@ -659,6 +659,8 @@ public:
 	/// @param force the world force vector, usually in Newtons (N).
 	void ParticleApplyForce(int32 index, const b2Vec2& force);
 
+	void ParticleApplyForce2(int32 index, const b2Vec2& force); //oriol
+
 	/// Distribute a force across several particles. The particles must not be
 	/// wall particles. Note that the force is distributed across all the
 	/// particles, so calling this function for indices 0..N is not the same as
@@ -999,12 +1001,18 @@ private:
 	void SolvePowder(const b2TimeStep& step);
 	void SolveSolid(const b2TimeStep& step);
 	void SolveForce(const b2TimeStep& step);
+	void SolveForce2(const b2TimeStep& step); //oriol
 	void SolveColorMixing();
 	void SolveZombie();
 	/// Destroy all particles which have outlived their lifetimes set by
 	/// SetParticleLifetime().
 	void SolveLifetimes(const b2TimeStep& step);
 	void RotateBuffer(int32 start, int32 mid, int32 end);
+
+public:
+	void MergeVelocities();//merge velocities back oriol
+private:
+
 
 	float32 GetCriticalVelocity(const b2TimeStep& step) const;
 	float32 GetCriticalVelocitySquared(const b2TimeStep& step) const;
@@ -1050,6 +1058,7 @@ private:
 
 	bool ForceCanBeApplied(uint32 flags) const;
 	void PrepareForceBuffer();
+	void PrepareForceBuffer2(); //oriol
 
 	bool IsRigidGroup(b2ParticleGroup *group) const;
 	b2Vec2 GetLinearVelocity(
@@ -1079,6 +1088,7 @@ private:
 	int32 m_allGroupFlags;
 	bool m_needsUpdateAllGroupFlags;
 	bool m_hasForce;
+	bool m_hasForce2;
 	int32 m_iterationIndex;
 	float32 m_inverseDensity;
 	float32 m_particleDiameter;
@@ -1099,6 +1109,7 @@ private:
 
 
 	b2Vec2* m_forceBuffer;
+	b2Vec2* m_forceBuffer2;
 	/// m_weightBuffer is populated in ComputeWeight and used in
 	/// ComputeDepth(), SolveStaticPressure() and SolvePressure().
 	float32* m_weightBuffer;
