@@ -3158,7 +3158,6 @@ void b2ParticleSystem::Solve(const b2TimeStep& step)
 		for (int32 i = 0; i < m_count; i++)
 		{
 			m_positionBuffer.data[i] += subStep.dt * m_velocityBuffer.data[i];
-			//m_velocityBuffer.data[i] *= 0.98; //oriol testing friction
 		}
 		TS_STOP_ACC("updatePositions");
 	}
