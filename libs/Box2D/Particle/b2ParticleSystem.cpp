@@ -3023,7 +3023,7 @@ void b2ParticleSystem::SolveBarrier(const b2TimeStep& step)
 	}
 }
 
-#pragma mark - 😡😡😡😡😡😡😡
+#pragma mark -
 void b2ParticleSystem::Solve(const b2TimeStep& step)
 {
 	if (m_count == 0)
