@@ -445,6 +445,9 @@ b2ParticleSystem::b2ParticleSystem(const b2ParticleSystemDef* def,
 	RUI_NEW_GROUP("COMPRESSION");
 	RUI_SHARE_PARAM(m_def.pressureStrength, 0.00, 2.0);
 	RUI_SHARE_PARAM(m_def.staticPressureStrength, 0.00, 2.0);
+	RUI_SHARE_PARAM(m_def.staticPressureRelaxation, 0.00, 2.0);
+	RUI_SHARE_PARAM(m_def.staticPressureIterations, 0, 10);
+
 
 	RUI_NEW_GROUP("VISCOUS");
 	RUI_SHARE_PARAM(m_def.viscousStrength, 0, 2);
@@ -3238,10 +3241,21 @@ void b2ParticleSystem::SolveStaticPressure(const b2TimeStep& step)
 				int32 a = contact.GetIndexA();
 				int32 b = contact.GetIndexB();
 				float32 w = contact.GetWeight();
-				m_accumulationBuffer[a] +=
+
+				b2ParticleGroup* groupA = m_groupBuffer[a];
+				b2ParticleGroup* groupB = m_groupBuffer[b];
+
+				bool shouldDo = true;
+				if(groupB && groupA){
+					if(groupB == groupA) shouldDo = false; //particles from same group no crap please
+				}
+
+				if(shouldDo){ //only if particles belong to a group
+					m_accumulationBuffer[a] +=
 					w * m_staticPressureBuffer[b]; // a <- b
-				m_accumulationBuffer[b] +=
+					m_accumulationBuffer[b] +=
 					w * m_staticPressureBuffer[a]; // b <- a
+				}
 			}
 		}
 		for (int32 i = 0; i < m_count; i++)
