@@ -286,6 +286,10 @@ struct b2ParticleSystemDef
 class b2ParticleSystem
 {
 public:
+
+
+	void setupRemoteUIParams(); //oriol
+
 	/// Create a particle whose properties have been defined.
 	/// No reference to the definition is retained.
 	/// A simulation step must occur before it's possible to interact with a

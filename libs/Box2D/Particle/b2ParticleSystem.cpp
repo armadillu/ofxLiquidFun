@@ -387,6 +387,55 @@ int32 b2ParticleSystem::InsideBoundsEnumerator::GetNext()
 	return b2_invalidParticleIndex;
 }
 
+
+void b2ParticleSystem::setupRemoteUIParams(){
+
+	ofxRemoteUIServer * rui = RUI_GET_INSTANCE();
+	#ifdef EXPOSE_INTERNAL_PHYSICS_PARAMS_WITH_REMOTE_UI
+	RUI_NEW_GROUP("LIQUID FUN FORCES");
+	//RUI_SHARE_PARAM_WCN("colorMixingStrength", m_def.colorMixingStrength, 0.00, 2);
+
+	//RUI_NEW_GROUP("DENSITY");
+	//rui->setNewParamColor(2);
+	RUI_SHARE_PARAM_WCN("density", m_def.density, 0.01, 2);
+
+	//RUI_NEW_GROUP("DAMP");
+	rui->setNewParamColor(2);
+	RUI_SHARE_PARAM_WCN("dampingStrength", m_def.dampingStrength, 0.01, 2.0);
+
+	//RUI_NEW_GROUP("COMPRESSION");
+	rui->setNewParamColor(2);
+	RUI_SHARE_PARAM_WCN("pressureStrength", m_def.pressureStrength, 0.00, 2.0);
+	RUI_SHARE_PARAM_WCN("staticPressureStrength", m_def.staticPressureStrength, 0.00, 2.0);
+	RUI_SHARE_PARAM_WCN("staticPressureRelaxation", m_def.staticPressureRelaxation, 0.00, 2.0);
+	RUI_SHARE_PARAM_WCN("staticPressureIterations", m_def.staticPressureIterations, 0, 10);
+
+	//RUI_NEW_GROUP("VISCOUS");
+	rui->setNewParamColor(2);
+	RUI_SHARE_PARAM_WCN("viscousStrength", m_def.viscousStrength, 0, 2);
+
+//	RUI_NEW_GROUP("ELASTIC");
+//	rui->setNewParamColor(2);
+//	RUI_SHARE_PARAM_WCN("elasticStrength", m_def.elasticStrength, 0, 0.4);
+
+	//RUI_NEW_GROUP("SPRING");
+	rui->setNewParamColor(2);
+	RUI_SHARE_PARAM_WCN("springStrength", m_def.springStrength, 0, 0.4);
+
+	//RUI_NEW_GROUP("TENSION");
+	rui->setNewParamColor(2);
+	RUI_SHARE_PARAM_WCN("surfaceTensionPressureStrength", m_def.surfaceTensionPressureStrength, 0.001, 2);
+	RUI_SHARE_PARAM_WCN("surfaceTensionNormalStrength", m_def.surfaceTensionNormalStrength, 0.001, 2);
+
+	//RUI_NEW_GROUP("REPULSION");
+	rui->setNewParamColor(2);
+	RUI_SHARE_PARAM_WCN("repulsiveStrength", m_def.repulsiveStrength, 0, 2);
+
+	RUI_LOAD_FROM_XML();
+	#endif
+}
+
+
 b2ParticleSystem::b2ParticleSystem(const b2ParticleSystemDef* def,
 								   b2World* world) :
 	m_handleAllocator(b2_minParticleSystemBufferCapacity),
@@ -429,44 +478,6 @@ b2ParticleSystem::b2ParticleSystem(const b2ParticleSystemDef* def,
 
 	b2Assert(def->lifetimeGranularity > 0.0f);
 	m_def = *def;
-
-	#ifdef EXPOSE_INTERNAL_PHYSICS_PARAMS_WITH_REMOTE_UI
-
-	RUI_NEW_GROUP("COLOR MIXING");
-	RUI_SHARE_PARAM(m_def.colorMixingStrength, 0.00, 2);
-
-
-	RUI_NEW_GROUP("DENSITY");
-	RUI_SHARE_PARAM(m_def.density, 0.01, 2);
-
-	RUI_NEW_GROUP("DAMP");
-	RUI_SHARE_PARAM(m_def.dampingStrength, 0.01, 2.0);
-
-	RUI_NEW_GROUP("COMPRESSION");
-	RUI_SHARE_PARAM(m_def.pressureStrength, 0.00, 2.0);
-	RUI_SHARE_PARAM(m_def.staticPressureStrength, 0.00, 2.0);
-	RUI_SHARE_PARAM(m_def.staticPressureRelaxation, 0.00, 2.0);
-	RUI_SHARE_PARAM(m_def.staticPressureIterations, 0, 10);
-
-
-	RUI_NEW_GROUP("VISCOUS");
-	RUI_SHARE_PARAM(m_def.viscousStrength, 0, 2);
-
-	RUI_NEW_GROUP("ELASTIC");
-	RUI_SHARE_PARAM(m_def.elasticStrength, 0, 0.4);
-
-	RUI_NEW_GROUP("SPRING");
-	RUI_SHARE_PARAM(m_def.springStrength, 0, 0.4);
-
-	RUI_NEW_GROUP("TENSION");
-	RUI_SHARE_PARAM(m_def.surfaceTensionPressureStrength, 0.001, 2);
-	RUI_SHARE_PARAM(m_def.surfaceTensionNormalStrength, 0.001, 2);
-
-	RUI_NEW_GROUP("REPULSION");
-	RUI_SHARE_PARAM(m_def.repulsiveStrength, 0, 2);
-
-	RUI_LOAD_FROM_XML();
-	#endif
 
 	m_world = world;
 
