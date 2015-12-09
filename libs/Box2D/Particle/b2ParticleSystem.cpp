@@ -36,6 +36,7 @@
 #if !TIME_SAMPLE_LIQUIDFUN //override TS_* commands to nop
 #define TS_ACC ;
 #define TS_START_ACC ;
+#define TS_STOP_ACC ;
 #endif
 
 // Define LIQUIDFUN_SIMD_TEST_VS_REFERENCE to run both SIMD and reference
@@ -4841,6 +4842,7 @@ b2ParticleSystem::b2ExceptionType b2ParticleSystem::IsBufCopyValid(
 #if !TIME_SAMPLE_LIQUIDFUN //redefine things as they should be
 	#define TS_ACC TS_ACC
 	#define TS_START_ACC TS_START_ACC
+	#define TS_STOP_ACC TS_STOP_ACC
 #endif
 
 #endif // LIQUIDFUN_EXTERNAL_LANGUAGE_API
