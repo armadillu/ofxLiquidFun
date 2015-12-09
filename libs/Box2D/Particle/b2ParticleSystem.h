@@ -34,6 +34,9 @@
 #include <cstring>
 #endif // LIQUIDFUN_EXTERNAL_LANGUAGE_API
 
+/*time sample each step of the solver set to true or false to enable/disable*/
+#define TIME_SAMPLE_LIQUIDFUN false
+
 class b2World;
 class b2Body;
 class b2Shape;
