@@ -421,8 +421,8 @@ void b2ParticleSystem::setupRemoteUIParams(){
 	RUI_SHARE_PARAM_WCN("viscousStrength", m_def.viscousStrength, 0, 2);
 
 //	RUI_NEW_GROUP("ELASTIC");
-//	rui->setNewParamColor(2);
-//	RUI_SHARE_PARAM_WCN("elasticStrength", m_def.elasticStrength, 0, 0.4);
+	rui->setNewParamColor(2);
+	RUI_SHARE_PARAM_WCN("elasticStrength", m_def.elasticStrength, 0, 0.4);
 
 	//RUI_NEW_GROUP("SPRING");
 	rui->setNewParamColor(2);
