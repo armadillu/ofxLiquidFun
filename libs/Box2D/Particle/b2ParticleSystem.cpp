@@ -3898,7 +3898,7 @@ void b2ParticleSystem::SolveSolid(const b2TimeStep& step)
 void b2ParticleSystem::MergeVelocities(){
 	for (int32 i = 0; i < m_count; i++){
 		//m_velocityBuffer.data[i] += m_velocityBuffer2.data[i];
-		b2Vec2 loss = m_velocityBuffer2.data[i] * 1.0f;
+		b2Vec2 loss = m_velocityBuffer2.data[i];
 		m_velocityBuffer2.data[i] -= loss;
 		m_velocityBuffer.data[i] += loss;
 	}
