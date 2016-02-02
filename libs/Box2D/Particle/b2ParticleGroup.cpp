@@ -31,7 +31,8 @@ b2ParticleGroup::b2ParticleGroup()
 	m_lastIndex = 0;
 	m_groupFlags = 0;
 	m_strength = 1.0f;
-	m_repulsionStrength = m_tensileStrength = 1.0; 
+	m_repulsionStrength = m_tensileStrength = 1.0f;
+	m_viscousStrength = 1.0f;
 	m_prev = NULL;
 	m_next = NULL;
 

@@ -3744,16 +3744,16 @@ void b2ParticleSystem::SolveTensile(const b2TimeStep& step)
 		const b2ParticleContact& contact = m_contactBuffer[k];
 		if (contact.GetFlags() & b2_tensileParticle)
 		{
-			int32 a = contact.GetIndexA();
-			int32 b = contact.GetIndexB();
-			float32 w = contact.GetWeight();
-			b2Vec2 n = contact.GetNormal();
-			float32 h = m_weightBuffer[a] + m_weightBuffer[b];
-			b2Vec2 s = m_accumulation2Buffer[b] - m_accumulation2Buffer[a];
+			const int32 a = contact.GetIndexA();
+			const int32 b = contact.GetIndexB();
+			const float32 w = contact.GetWeight();
+			const b2Vec2 n = contact.GetNormal();
+			const float32 h = m_weightBuffer[a] + m_weightBuffer[b];
+			const b2Vec2 s = m_accumulation2Buffer[b] - m_accumulation2Buffer[a];
 
 			//oriol hack to get group's repulsion gain
-			b2ParticleGroup* groupA = m_groupBuffer[a];
-			b2ParticleGroup* groupB = m_groupBuffer[b];
+			const b2ParticleGroup* groupA = m_groupBuffer[a];
+			const b2ParticleGroup* groupB = m_groupBuffer[b];
 			float oriolGain = 1.0;
 			if(groupB && groupA){ //only if particles belong to a group
 				if(groupB == groupA){
@@ -3779,7 +3779,7 @@ void b2ParticleSystem::SolveTensile(const b2TimeStep& step)
 
 void b2ParticleSystem::SolveViscous()
 {
-	float32 viscousStrength = m_def.viscousStrength;
+	const float32 viscousStrength = m_def.viscousStrength;
 	for (int32 k = 0; k < m_bodyContactBuffer.GetCount(); k++)
 	{
 		const b2ParticleBodyContact& contact = m_bodyContactBuffer[k];
@@ -3802,11 +3802,23 @@ void b2ParticleSystem::SolveViscous()
 		const b2ParticleContact& contact = m_contactBuffer[k];
 		if (contact.GetFlags() & b2_viscousParticle)
 		{
-			int32 a = contact.GetIndexA();
-			int32 b = contact.GetIndexB();
-			float32 w = contact.GetWeight();
+			const int32 a = contact.GetIndexA();
+			const int32 b = contact.GetIndexB();
+			const float32 w = contact.GetWeight();
+
+			//oriol hack to get group's viscous gain
+			const b2ParticleGroup* groupA = m_groupBuffer[a];
+			const b2ParticleGroup* groupB = m_groupBuffer[b];
+			float oriolGain = 1.0f;
+			if(groupB && groupA){ //only if particles belong to a group
+				if(groupB == groupA){ //only self-viscosity matters for this hack
+					oriolGain = groupA->m_viscousStrength;
+				}
+			}
+
+
 			b2Vec2 v = m_velocityBuffer.data[b] - m_velocityBuffer.data[a];
-			b2Vec2 f = viscousStrength * w * v;
+			b2Vec2 f = oriolGain * viscousStrength * w * v;
 			m_velocityBuffer.data[a] += f;
 			m_velocityBuffer.data[b] -= f;
 		}
@@ -3815,19 +3827,19 @@ void b2ParticleSystem::SolveViscous()
 
 void b2ParticleSystem::SolveRepulsive(const b2TimeStep& step)
 {
-	float32 repulsiveStrength =
+	const float32 repulsiveStrength =
 		m_def.repulsiveStrength * GetCriticalVelocity(step);
 	for (int32 k = 0; k < m_contactBuffer.GetCount(); k++)
 	{
 		const b2ParticleContact& contact = m_contactBuffer[k];
 		if (contact.GetFlags() & b2_repulsiveParticle)
 		{
-			int32 a = contact.GetIndexA();
-			int32 b = contact.GetIndexB();
+			const int32 a = contact.GetIndexA();
+			const int32 b = contact.GetIndexB();
 
 			//oriol hack to get group's repulsion gain
-			b2ParticleGroup* groupA = m_groupBuffer[a];
-			b2ParticleGroup* groupB = m_groupBuffer[b];
+			const b2ParticleGroup* groupA = m_groupBuffer[a];
+			const b2ParticleGroup* groupB = m_groupBuffer[b];
 			float oriolGain = 1.0;
 			if(groupB && groupA){ //only if particles belong to a group
 				if(groupB == groupA){
@@ -3879,8 +3891,8 @@ void b2ParticleSystem::SolveSolid(const b2TimeStep& step)
 	for (int32 k = 0; k < m_contactBuffer.GetCount(); k++)
 	{
 		const b2ParticleContact& contact = m_contactBuffer[k];
-		int32 a = contact.GetIndexA();
-		int32 b = contact.GetIndexB();
+		const int32 a = contact.GetIndexA();
+		const int32 b = contact.GetIndexB();
 		if (m_groupBuffer[a] != m_groupBuffer[b])
 		{
 			float32 w = contact.GetWeight();
@@ -3935,8 +3947,8 @@ void b2ParticleSystem::SolveColorMixing()
 		for (int32 k = 0; k < m_contactBuffer.GetCount(); k++)
 		{
 			const b2ParticleContact& contact = m_contactBuffer[k];
-			int32 a = contact.GetIndexA();
-			int32 b = contact.GetIndexB();
+			const int32 a = contact.GetIndexA();
+			const int32 b = contact.GetIndexB();
 			if (m_flagsBuffer.data[a] & m_flagsBuffer.data[b] &
 				b2_colorMixingParticle)
 			{
