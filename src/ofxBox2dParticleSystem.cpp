@@ -36,20 +36,22 @@ void ofxBox2dParticleSystem::setup(b2World * _b2world, int _maxCount, float _lif
     lifetime = _lifetime;
     particleSize = _particleSize;
     color = _color;
-    
+
+	mesh.setMode(OF_PRIMITIVE_POINTS);
+	mesh.getVertices().reserve(_maxCount);
+	mesh.getColors().reserve(_maxCount);
+
     particleSystem = b2dworld->CreateParticleSystem(&particleSystemDef);
 }
 
 
-ofVboMesh ofxBox2dParticleSystem::getParticleVbo(){
+ofVboMesh& ofxBox2dParticleSystem::getParticleVbo(){
 
 	int32 particleCount = particleSystem->GetParticleCount();
 	b2Vec2 *pos = particleSystem->GetPositionBuffer();
-
-	ofVboMesh mesh;
 	b2ParticleColor *particleColor = particleSystem->GetColorBuffer();
-	mesh.setMode(OF_PRIMITIVE_POINTS);
 
+	mesh.clear();
 	for (int i = 0; i < particleCount; i++) {
 		mesh.addVertex(ofVec3f(pos[i].x * OFX_BOX2D_SCALE, pos[i].y * OFX_BOX2D_SCALE, 0.0f));
 		mesh.addColor(ofFloatColor(particleColor[i].r / 255.0, particleColor[i].g / 255.0, particleColor[i].b / 255.0));
@@ -59,8 +61,6 @@ ofVboMesh ofxBox2dParticleSystem::getParticleVbo(){
 
 void ofxBox2dParticleSystem::draw(){
     ofFill();
-    
-    ofVboMesh mesh = getParticleVbo();
 
     ofSetColor(255);
     ofEnablePointSprites();
