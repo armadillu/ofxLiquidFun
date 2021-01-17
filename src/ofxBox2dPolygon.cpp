@@ -36,7 +36,7 @@ void ofxBox2dPolygon::destroy() {
 }
 
 //----------------------------------------
-void ofxBox2dPolygon::addTriangle(const ofVec2f &a, const ofVec2f &b, const ofVec2f &c) {
+void ofxBox2dPolygon::addTriangle(const glm::vec3 &a, const glm::vec3 &b, const glm::vec3 &c) {
 	addVertex(a); addVertex(b);	addVertex(c);
 	
 	// dont forget to close it
@@ -48,7 +48,14 @@ void ofxBox2dPolygon::addTriangle(const ofVec2f &a, const ofVec2f &b, const ofVe
  These were in ofPolyline and now are gone?
 */
 //----------------------------------------
-void ofxBox2dPolygon::addVertexes(vector <ofVec2f> &pts) {
+void ofxBox2dPolygon::addVertexes(vector <glm::vec3> &pts) {
+	for (int i=0; i<pts.size(); i++) {
+		addVertex(pts[i].x, pts[i].y);
+	}
+}
+
+//----------------------------------------
+void ofxBox2dPolygon::addVertexes(vector <glm::vec2> &pts) {
 	for (int i=0; i<pts.size(); i++) {
 		addVertex(pts[i].x, pts[i].y);
 	}
@@ -168,7 +175,7 @@ void ofxBox2dPolygon::create(b2World * b2dworld) {
 	}
 	else {
         makeConvexPoly();
-		vector<ofPoint> pts = ofPolyline::getVertices();
+		vector<glm::vec3> pts = ofPolyline::getVertices();
         vector<b2Vec2>verts;
         for (int i=0; i<MIN((int)pts.size(), b2_maxPolygonVertices); i++) {
             verts.push_back(screenPtToWorldPt(pts[i]));
@@ -186,12 +193,12 @@ void ofxBox2dPolygon::create(b2World * b2dworld) {
         
     }
     
-    vector<ofPoint> pts = ofPolyline::getVertices();
+    vector<glm::vec3> pts = ofPolyline::getVertices();
     mesh.clear();
     ofPath path;
-    ofPoint center = getCentroid2D();
+    glm::vec3 center = getCentroid2D();
     for (int i=0; i<pts.size(); i++) {
-        ofPoint p(pts[i].x, pts[i].y);
+        glm::vec3 p(pts[i].x, pts[i].y, 0.0f);
         p -= center;
         path.lineTo(p);
     }
@@ -203,7 +210,7 @@ void ofxBox2dPolygon::create(b2World * b2dworld) {
 }
 
 //------------------------------------------------
-void ofxBox2dPolygon::addAttractionPoint (ofVec2f pt, float amt) {
+void ofxBox2dPolygon::addAttractionPoint (glm::vec2 pt, float amt) {
     // we apply forces at each vertex. 
     if(body != NULL) {
         const b2Transform& xf = body->GetTransform();
@@ -228,14 +235,19 @@ void ofxBox2dPolygon::addAttractionPoint (ofVec2f pt, float amt) {
 
 //----------------------------------------
 void ofxBox2dPolygon::addAttractionPoint (float x, float y, float amt) {
-    addAttractionPoint(ofVec2f(x, y), amt);
+    addAttractionPoint(glm::vec2(x, y), amt);
+}
+
+//----------------------------------------
+void ofxBox2dPolygon::addAttractionPoint (glm::vec3 pt, float amt) {
+	addAttractionPoint(glm::vec2(pt.x, pt.y), amt);
 }
 
 //----------------------------------------
 void ofxBox2dPolygon::addRepulsionForce(float x, float y, float amt) {
-	addRepulsionForce(ofVec2f(x, y), amt);
+	addRepulsionForce(glm::vec2(x, y), amt);
 }
-void ofxBox2dPolygon::addRepulsionForce(ofVec2f pt, float amt) {
+void ofxBox2dPolygon::addRepulsionForce(glm::vec2 pt, float amt) {
 	// we apply forces at each vertex. 
     if(body != NULL) {
         const b2Transform& xf = body->GetTransform();
@@ -258,7 +270,7 @@ void ofxBox2dPolygon::addRepulsionForce(ofVec2f pt, float amt) {
 }
 
 //----------------------------------------
-vector <ofPoint>& ofxBox2dPolygon::getPoints() {
+vector <glm::vec3>& ofxBox2dPolygon::getPoints() {
 	
     if(body == NULL) {
 		return ofPolyline::getVertices();

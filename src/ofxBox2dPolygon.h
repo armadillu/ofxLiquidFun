@@ -11,7 +11,7 @@ private:
 	bool	bIsSimplified;
 	bool    bIsTriangulated;
 	float   area;
-	ofVec2f center;
+	glm::vec3 center;
 	void    calculateCentroid();
 	float   calculateArea();
     void    makeConvexPoly();
@@ -29,8 +29,9 @@ public:
 	void clear();
     
 	//----------------------------------------
-	void addTriangle(const ofVec2f &a, const ofVec2f &b, const ofVec2f &c);
-	void addVertexes(vector <ofVec2f> &pts);
+	void addTriangle(const glm::vec3 &a, const glm::vec3 &b, const glm::vec3 &c);
+	void addVertexes(vector <glm::vec3> &pts);
+	void addVertexes(vector <glm::vec2> &pts);
 	void addVertexes(ofPolyline &polyline);
 
 	//----------------------------------------
@@ -41,14 +42,15 @@ public:
 	void triangulatePoly(float resampleAmt=20, int nPointsInside=-1);
     
 	//----------------------------------------
-	vector <ofPoint> &getPoints();
+	vector <glm::vec3> &getPoints();
 	bool	isGoodShape() { return calculateArea() > 15; }
     
 	//------------------------------------------------
-	void addAttractionPoint(ofVec2f pt, float amt=1);
+	void addAttractionPoint(glm::vec2 pt, float amt=1);
+	void addAttractionPoint(glm::vec3 pt, float amt=1);
 	void addAttractionPoint(float x, float y, float amt=1);
 	void addRepulsionForce(float x, float y, float amt);
-	void addRepulsionForce(ofVec2f pt, float amt);
+	void addRepulsionForce(glm::vec2 pt, float amt);
 
 	//----------------------------------------
 	void create(b2World * b2dworld);

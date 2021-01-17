@@ -49,8 +49,7 @@ private:
 		args.b = contact->GetFixtureB();
 		ofNotifyEvent( contactEndEvents, args, this);
 	}
-	
-    ofPoint				gravity;
+    glm::vec3				gravity;
 
 public:
 	
@@ -117,14 +116,15 @@ public:
     void        wakeupShapes();
 	void		setIterations(int velocityTimes, int positionTimes);
 	void		setGravity(float x, float y);
+	void		setGravity(glm::vec3 pt);
 	void		setGravity(ofPoint pt);
-    ofPoint     getGravity();
+    glm::vec3     getGravity();
     
-	void		setBounds(ofPoint lowBounds, ofPoint upBounds);
+	void		setBounds(glm::vec3 lowBounds, glm::vec3 upBounds);
 	void		createBounds(float x=0, float y=0, float w=ofGetWidth(), float h=ofGetHeight());
 	void		createBounds(ofRectangle rec);
 	
-	void		createGround(const ofPoint & p1, const ofPoint & p2);
+	void		createGround(const glm::vec3 & p1, const glm::vec3 & p2);
 	void		createGround(float x1=0, float y1=ofGetHeight(), float x2=ofGetWidth(), float y2=ofGetHeight());
 	void		checkBounds(bool b);
 

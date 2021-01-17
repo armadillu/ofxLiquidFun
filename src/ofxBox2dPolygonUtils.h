@@ -510,7 +510,7 @@ static vector<hPoint> calcConvexHull(vector<hPoint> P) {
 	H.resize(k);
 	return H;
 }
-static ofPolyline getConvexHull(vector<ofPoint>&linePts){
+static ofPolyline getConvexHull(vector<glm::vec3>&linePts){
     
     vector < hPoint > ptsIn;
     for (int i = 0; i < linePts.size(); i++){
@@ -527,7 +527,7 @@ static ofPolyline getConvexHull(vector<ofPoint>&linePts){
     ofPolyline outLine;
     
     for (int i = 0; i < ptsOut.size(); i++){
-        outLine.addVertex(ofPoint(ptsOut[i].x, ptsOut[i].y));
+        outLine.addVertex(glm::vec3(ptsOut[i].x, ptsOut[i].y, 0));
     }
     
     return outLine;

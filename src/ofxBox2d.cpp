@@ -61,7 +61,12 @@ void ofxBox2d::init() {
 	doSleep				= true;
 	
 	// gravity
-	gravity.set(0, 5.0f);
+	#if (OF_VERSION_MINOR >= 10)
+		gravity = glm::vec3(0.0f, 5.0f, 0.0f);
+	#else
+		gravity.set(0, 5.0f);
+	#endif
+
 	setFPS(30.0);
 	velocityIterations = 40;
 	positionIterations = 20;
@@ -308,9 +313,14 @@ void ofxBox2d::wakeupShapes() {
 }
 
 // ------------------------------------------------------ set gravity
-void ofxBox2d::setGravity(ofPoint pt) {
+void ofxBox2d::setGravity(glm::vec3 pt) {
     setGravity(pt.x, pt.y);
 }
+
+void ofxBox2d::setGravity(ofPoint pt) {
+	setGravity(pt.x, pt.y);
+}
+
 void ofxBox2d::setGravity(float x, float y) {
 	if(world == NULL) {
 		ofLog(OF_LOG_WARNING, "ofxBox2d:: - Need a world, call init first! -");
@@ -319,17 +329,17 @@ void ofxBox2d::setGravity(float x, float y) {
 	world->SetGravity(b2Vec2(x, y));
     wakeupShapes();
 }
-ofPoint ofxBox2d::getGravity() {
+glm::vec3 ofxBox2d::getGravity() {
 	if(world == NULL) {
 		ofLog(OF_LOG_WARNING, "ofxBox2d:: - Need a world, call init first! -");
-		return ofPoint();
+		return glm::vec3();
 	}
-    return ofPoint(world->GetGravity().x, world->GetGravity().y);
+    return glm::vec3(world->GetGravity().x, world->GetGravity().y, 0.0f);
 }
 
 
 // ------------------------------------------------------ set bounds
-void ofxBox2d::setBounds(ofPoint lowBounds, ofPoint upBounds) {
+void ofxBox2d::setBounds(glm::vec3 lowBounds, glm::vec3 upBounds) {
 	//TODO: still need to work on this...
 }
 
@@ -353,7 +363,7 @@ void ofxBox2d::createGround(float x1, float y1, float x2, float y2) {
 
 }
 // ------------------------------------------------------ create Ground
-void ofxBox2d::createGround(const ofPoint & p1, const ofPoint & p2) {
+void ofxBox2d::createGround(const glm::vec3 & p1, const glm::vec3 & p2) {
 	createGround(p1.x, p1.y, p2.x, p2.y);
 }
 
@@ -411,7 +421,7 @@ b2Body* ofxBox2d::createEdge(const ofPolyline &polyline,
 							 float d,
 							 float r)
 {
-	vector<ofPoint> verts = polyline.getVertices();
+	vector<glm::vec3> verts = polyline.getVertices();
 
 	// the node
 	b2BodyDef bd;
