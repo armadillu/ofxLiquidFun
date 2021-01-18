@@ -500,7 +500,7 @@ void ofxBox2d::update() {
 	}
 	
 	float	timeStep		   = (1.0f / fps);
-	world->Step(timeStep, velocityIterations, positionIterations);
+	world->Step(timeStep, velocityIterations, positionIterations, particleIterations);
 	//world->Validate();	
 	
 }

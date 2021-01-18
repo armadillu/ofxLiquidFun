@@ -31,9 +31,7 @@ private:
 	
     bool                enableContactEvents;
 	float				fps;
-	int					velocityIterations;
-	int					positionIterations;
-	
+
 	// Called when two fixtures begin to touch.
 	void BeginContact(b2Contact* contact) { 
 		static ofxBox2dContactArgs args;
@@ -52,7 +50,11 @@ private:
     glm::vec3				gravity;
 
 public:
-	
+
+	int					velocityIterations;
+	int					positionIterations;
+	int 					particleIterations;
+
 	// b2AABB				worldAABB;
 	b2World *			world;
 	ofxBox2dRender		debugRender;
