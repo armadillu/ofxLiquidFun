@@ -30,7 +30,7 @@ class ofxBox2d : public b2ContactListener {
 private:
 	
     bool                enableContactEvents;
-	float				fps;
+
 
 	// Called when two fixtures begin to touch.
 	void BeginContact(b2Contact* contact) { 
@@ -54,6 +54,7 @@ public:
 	int					velocityIterations;
 	int					positionIterations;
 	int 					particleIterations;
+	float				fps;
 
 	// b2AABB				worldAABB;
 	b2World *			world;
