@@ -175,7 +175,7 @@ void ofxBox2dPolygon::create(b2World * b2dworld) {
 	}
 	else {
         makeConvexPoly();
-		vector<glm::vec3> pts = ofPolyline::getVertices();
+		auto pts = ofPolyline::getVertices();
         vector<b2Vec2>verts;
         for (int i=0; i<MIN((int)pts.size(), b2_maxPolygonVertices); i++) {
             verts.push_back(screenPtToWorldPt(pts[i]));
@@ -193,7 +193,7 @@ void ofxBox2dPolygon::create(b2World * b2dworld) {
         
     }
     
-    vector<glm::vec3> pts = ofPolyline::getVertices();
+    auto pts = ofPolyline::getVertices();
     mesh.clear();
     ofPath path;
     glm::vec3 center = getCentroid2D();
@@ -270,7 +270,7 @@ void ofxBox2dPolygon::addRepulsionForce(glm::vec2 pt, float amt) {
 }
 
 //----------------------------------------
-vector <glm::vec3>& ofxBox2dPolygon::getPoints() {
+vector <ofDefaultVertexType>& ofxBox2dPolygon::getPoints() {
 	
     if(body == NULL) {
 		return ofPolyline::getVertices();

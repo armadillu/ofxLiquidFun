@@ -532,7 +532,7 @@ static ofPolyline getConvexHull(vector<glm::vec3>&linePts){
     
     return outLine;
 }
-static ofPolyline getConvexHull(ofPolyline &line){
+static ofPolyline getConvexHull(const ofPolyline &line){
     return getConvexHull(line.getVertices());
 }
 

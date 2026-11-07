@@ -42,7 +42,7 @@ public:
 	void triangulatePoly(float resampleAmt=20, int nPointsInside=-1);
     
 	//----------------------------------------
-	vector <glm::vec3> &getPoints();
+	vector <ofDefaultVertexType> &getPoints();
 	bool	isGoodShape() { return calculateArea() > 15; }
     
 	//------------------------------------------------
