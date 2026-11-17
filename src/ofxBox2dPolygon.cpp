@@ -202,7 +202,7 @@ void ofxBox2dPolygon::create(b2World * b2dworld) {
         p -= center;
         path.lineTo(p);
     }
-    mesh = path.getTessellation();
+    static_cast<ofMesh &>(mesh) = path.getTessellation();
     mesh.setUsage(GL_STATIC_DRAW);
 
     flagHasChanged();

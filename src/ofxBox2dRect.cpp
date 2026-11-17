@@ -66,7 +66,7 @@ void ofxBox2dRect::updateMesh() {
     ofPath path;
     path.rectangle(-w/2, -h/2, w, h);
     mesh.clear();
-    mesh = path.getTessellation();
+    static_cast<ofMesh &>(mesh) = path.getTessellation();
     mesh.setUsage(GL_STATIC_DRAW);
 }
 /*
